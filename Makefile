@@ -1,7 +1,8 @@
-
+CC = clang
+CFLAGS = -g -Wall
 
 bms:
-	clang src/main.c -lncurses -o bms
+	$(CC) $(CFLAGS) src/*.c -lncurses -o bms -I includes
 
 clean:
 	rm -f bms

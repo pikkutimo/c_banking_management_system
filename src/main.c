@@ -1,47 +1,43 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ncurses.h>
-#include <time.h>
+#include "bms_utils.h"
+#include<string.h>
 
-// DESIGN:
-// * User interface will be done with curses
-// * Represent numbers with strings, use numbers only in calculations
-// * The persons-file will contain every client
-// * The accounts-file will contain every account in the bank
-// * The ledger-file will contain every transactions of the bank
-// * The two former files are read into memory on start and saved on exit
-// * On the other hand every transaction is added to the ledger immediately 
-// 
-// IDEAS?
-// * External SQL?
-
-struct person {
-    char id[10];
-    char name[32];
-    char email[32];
-    time_t date_of_birth;
-};
-
-struct account {
-    char account_no[12];
-    char owner[10];
-    char balance[15];
-    time_t date_of_creation;
-};
-
-struct transaction {
-    time_t transaction_time;
-    char sender[12]; // account no
-    char receiver[12];
-    char transaction_value[15];
-    char signee[10]; // who initated this transfer?
-};
 
 int main(int argc, char *argv[]) {
-    time_t t;
-    t = time(NULL);
-    struct tm tm = *localtime(&t);
-    printf("Current Date: %d-%d-%d", tm.tm_mday, tm.tm_mon+1, tm.tm_year+1900);
-    getch();
+
+    // const char *persons_file_name = "persons.dat";
+    // const char *accounts_file_name = "accounts.dat";
+    // const char *ledger_file_name = "ledger.dat";
+
+    person *clients[5];
+    // account **accounts;
+    // transaction **ledger;
+
+    // FILE *pfile;
+
+    time_t dob1 = create_timestamp(1975, 2, 26, 0, 0, 0, 0);
+    // time_t dob2 = create_timestamp(1985, 2, 26, 0, 0, 0, 0);
+    // time_t dob3 = create_timestamp(1995, 2, 26, 0, 0, 0, 0);
+
+    strcpy(clients[0]->id,"0000000001\0");
+    strcpy(clients[0]->name,"Timo Vilen\0");
+    strcpy(clients[0]->email,"pikkutimo@gmail.com\0");
+    clients[0]->date_of_birth = dob1;
+
+    for (int i = 0; i < 1; i++) {
+        printf("PERSON %-15s%-32s%-32s%-30s\n", clients[i]->id, clients[i]->name, clients[i]->email, ctime(&clients[i]->date_of_birth));
+    }
+
+    
+
+    // time_t doc = create_timestamp(2020, 0, 1, 0, 0, 0, 0);
+    // account t_account = {"12345678912\0", "0000000000\0", "123.34", doc};
+
+    // printf("ACCOUNT %-15s%-15s%-20s%-30s\n", t_account.account_no, t_account.owner, t_account.balance, ctime(&t_account.date_of_creation));
+
+    // time_t dtot = create_timestamp(2022, 10, 16, 1, 30, 0, 0);
+    // transaction trans = {dtot, "12345678912\0", "12345678912\0", "100.00", "0000000000\0"};
+
+    // printf("TRANSACTION %-25s%-15s%-15s%-15s%-15s\n", ctime(&trans.transaction_time), trans.sender, trans.receiver, trans.transaction_value, trans.signee);
+
     return 0;
 }
