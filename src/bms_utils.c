@@ -12,3 +12,12 @@ time_t create_timestamp(int year, int month, int weekday, int hour, int min, int
 
     return mktime(&str_time);
 }
+
+void write_to_file(char * filename, ...) {
+    // variadic function
+    // 1. parameter is the filename
+    // 2. parameter is the pointer to a struct pointer
+    //
+
+    printf("Not implemented yet.\n");
+}
