@@ -21,3 +21,104 @@ void write_to_file(char * filename, ...) {
 
     printf("Not implemented yet.\n");
 }
+
+// Function to push data onto list
+void push(struct List *current, void *new_data) {
+    struct List *new_node = (struct List *) malloc(sizeof(struct List));
+    if (new_node == NULL) {
+        fprintf(stderr, "Couldn't allocate memory");
+        exit(1);
+    }
+
+    // Do we need to allocate memory for the node, if it has already been done elsewhere?
+    // new_node->data = malloc(new_data_size);
+    new_node->data = new_data;
+    new_node->next = NULL;
+
+    current->next = new_node;
+    current = new_node;
+}
+
+struct Person* create_client(char *id, char *name, char *email, int year, int month, int weekday) {
+    struct Person *temp;
+    temp = (struct Person *)malloc(sizeof(struct Person));
+
+    time_t dob = create_timestamp(year, month, weekday, 0, 0, 0, 0);
+    strcpy(temp->id, id);
+    strcpy(temp->name, name);
+    strcpy(temp->email, email);
+    temp->date_of_birth = dob;
+
+    return temp;
+}
+// struct person* create_client_list() {
+//     struct person *current;
+//     current = (struct person *)malloc(sizeof(struct person));
+//     if (current == NULL) {
+//         fprintf(stderr, "Couldn't allocate memory");
+//         exit(1);
+//     }
+
+//     return current;
+// }
+
+// void clear_client_list(struct person *first) {
+//     struct person *temp;
+
+//     // free every item but the last
+//     while (first->next != NULL) {
+//         temp = first;
+//         first = first->next;
+//         free(temp);
+//     }
+
+//     free(first);
+// }
+
+// struct account* create_account_list() {
+//     struct account *acc;
+//     acc = (struct account *)malloc(sizeof(struct account));
+//     if (acc == NULL) {
+//         fprintf(stderr, "Couldn't allocate memory");
+//         exit(1);
+//     }
+
+//     return acc;
+// }
+
+// void clear_account_list(struct account *first) {
+//     struct account *temp;
+
+//     // free every item but the last
+//     while (first->next != NULL) {
+//         temp = first;
+//         first = first->next;
+//         free(temp);
+//     }
+
+//     free(first);
+// }
+
+// struct transaction* create_transaction_list() {
+//     struct transaction *item;
+//     item = (struct transaction *)malloc(sizeof(struct transaction));
+//     if (item == NULL) {
+//         fprintf(stderr, "Couldn't allocate memory");
+//         exit(1);
+//     }
+
+//     return item;
+// }
+
+// void clear_transaction_list(struct transaction *first) {
+//     struct transaction *temp;
+
+//     // free every item but the last
+//     while (first->next != NULL) {
+//         temp = first;
+//         first = first->next;
+//         free(temp);
+//     }
+
+//     free(first);
+// }
