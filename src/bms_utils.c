@@ -59,7 +59,7 @@ void printList(struct List *first, void (*fptr)(void *)) {
 }
 
 void printClients(void *client) {
-    printf("%-12c", *(char *)client);
+    printf("%-12c", *(char *)client->id);
 }
 
 struct Person *create_client(char *id, char *name, char *email, int year, int month, int weekday) {
