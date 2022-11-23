@@ -11,40 +11,30 @@ struct Person{
     char name[32];
     char email[32];
     time_t date_of_birth;
-    // struct person *next;
 };
 
-struct Account{
-    char account_no[12];
-    char owner[11];
-    char balance[16];
-    time_t date_of_creation;
-    // struct account *next;
-};
+// struct Account{
+//     char account_no[12];
+//     char owner[11];
+//     char balance[16];
+//     time_t date_of_creation;
 
-struct Transaction{
-    time_t transaction_time;
-    char sender[12]; // account no
-    char receiver[12];
-    char transaction_value[16];
-    char signee[11]; // who initated this transfer?
-    // struct transaction *next;
-};
+// struct Transaction{
+//     time_t transaction_time;
+//     char sender[12]; // account no
+//     char receiver[12];
+//     char transaction_value[16];
+//     char signee[11]; // who initated this transfer?
+// };
 
-struct List{
-    void *data;
-    struct List *next;
+struct Clients {
+    struct Clients *next;
+    struct Person client;
 };
-
-// const char *persons_file_name = "persons.dat";
-// const char *accounts_file_name = "accounts.dat";
-// const char *ledger_file_name = "ledger.dat";
 
 time_t create_timestamp(int year, int month, int weekday, int hour, int min, int sec, int isdst);
-void write_to_file(char * filename, ...);
-void push(struct List *current, struct List *first, void *new_data);
-void printList(struct List *first, void (*fptr)(void *));
-void printClients(void *client);
-struct Person* create_client(char *id, char *name, char *email, int year, int month, int weekday);
+struct Person *create_client(char *id, char *name, char *email, int year, int month, int weekday);
+void insertClient(struct Clients **current, struct Person *person);
+void printClients(struct Clients *current);
 
 #endif
