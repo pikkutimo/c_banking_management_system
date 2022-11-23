@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-// #include <ncurses.h>
 #include <time.h>
+#include <string.h>
 
 struct Person{
     char id[11];
@@ -33,8 +33,8 @@ struct Transaction{
 
 struct List{
     void *data;
-    struct Node *next;
-}
+    struct List *next;
+};
 
 // const char *persons_file_name = "persons.dat";
 // const char *accounts_file_name = "accounts.dat";
@@ -42,10 +42,9 @@ struct List{
 
 time_t create_timestamp(int year, int month, int weekday, int hour, int min, int sec, int isdst);
 void write_to_file(char * filename, ...);
-// struct person* create_client_list();
-// struct account* create_account_list();
-// struct transaction* create_transaction_list();
-void push(struct List *current, void *new_data);
+void push(struct List *current, struct List *first, void *new_data);
+void printList(struct List *first, void (*fptr)(void *));
+void printClients(void *client);
 struct Person* create_client(char *id, char *name, char *email, int year, int month, int weekday);
 
 #endif

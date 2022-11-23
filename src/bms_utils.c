@@ -23,31 +23,53 @@ void write_to_file(char * filename, ...) {
 }
 
 // Function to push data onto list
-void push(struct List *current, void *new_data) {
+void push(struct List *current, struct List *first, void *new_data) {
     struct List *new_node = (struct List *) malloc(sizeof(struct List));
     if (new_node == NULL) {
         fprintf(stderr, "Couldn't allocate memory");
         exit(1);
     }
 
+   new_node->data = new_data;
+   new_node->next = NULL;
+
+   if (first == NULL) {
+    first = current = new_node;
+   } else {
+    current->next = new_node;
+    current = current->next;
+   }
+
+
     // Do we need to allocate memory for the node, if it has already been done elsewhere?
     // new_node->data = malloc(new_data_size);
-    new_node->data = new_data;
-    new_node->next = NULL;
-
-    current->next = new_node;
-    current = new_node;
+   
 }
 
-struct Person* create_client(char *id, char *name, char *email, int year, int month, int weekday) {
-    struct Person *temp;
-    temp = (struct Person *)malloc(sizeof(struct Person));
+void printList(struct List *first, void (*fptr)(void *)) {
+    struct List *temp = (struct List *) malloc(sizeof(struct List));
+    temp = first;
+    while (temp != NULL)
+    {
+        (*fptr)(temp->data);
+        temp = temp->next;
+    }
 
-    time_t dob = create_timestamp(year, month, weekday, 0, 0, 0, 0);
+    free(temp);
+}
+
+void printClients(void *client) {
+    printf("%-12c", *(char *)client);
+}
+
+struct Person *create_client(char *id, char *name, char *email, int year, int month, int weekday) {
+    struct Person *temp = (struct Person *)malloc(sizeof(struct Person));
+
+    // time_t dob = create_timestamp(year, month, weekday, 0, 0, 0, 0);
     strcpy(temp->id, id);
     strcpy(temp->name, name);
     strcpy(temp->email, email);
-    temp->date_of_birth = dob;
+    temp->date_of_birth = create_timestamp(year, month, weekday, 0, 0, 0, 0);
 
     return temp;
 }
