@@ -1,6 +1,7 @@
 #include "bms_utils.h"
 
 time_t create_timestamp(int year, int month, int weekday, int hour, int min, int sec, int isdst) {
+    // These values should be validated accordingly
     struct tm str_time;
     str_time.tm_year = year - 1900;
     str_time.tm_mon = month; // Starts from 0 ?
@@ -14,10 +15,10 @@ time_t create_timestamp(int year, int month, int weekday, int hour, int min, int
 }
 
 struct Person* create_client(char *id, char *name, char *email, int year, int month, int weekday) {
+    // Let's leave this assert here and leave the input validation to the
+    // function, where the name and email are provided.
+    assert(strlen(name) > 0 && strlen(email) > 0);
     struct Person *temp = (struct Person *) malloc(sizeof(struct Person));
-    // snprintf(temp->id, sizeof(id), "%s", id);
-    // snprintf(temp->name, sizeof(name), "%s", name);
-    // snprintf(temp->email, sizeof(email), "%s", email);
     strcpy(temp->id, id);
     strcpy(temp->name, name);
     strcpy(temp->email, email);
@@ -27,28 +28,48 @@ struct Person* create_client(char *id, char *name, char *email, int year, int mo
 }
 
 struct Account* create_account(char *acc_no, char *owner_id) {
+    assert(strlen(acc_no) > 0 && strlen(owner_id) > 0);
     struct Account *temp = (struct Account *) malloc(sizeof(struct Account));
     strcpy(temp->account_no, acc_no);
     strcpy(temp->owner, owner_id);
-    strcpy(temp->balance, "0");
+    temp->balance = 0;
     
     temp->date_of_creation = time(NULL);
 
     return temp;
 }
 
-struct Transaction* create_transaction(char *sender, char *receiver, char *amount) {
+struct Transaction* create_transaction(char *sender, char *receiver, uint64_t amount) {
+    assert(strlen(sender) > 0 && strlen(receiver) > 0 && amount > 0);
     struct Transaction *temp = (struct Transaction *) malloc(sizeof(struct Transaction));
     strcpy(temp->sender, sender);
     strcpy(temp->receiver, receiver);
-    strcpy(temp->amount, amount);
+    temp->amount = amount;
     
     temp->date_of_transaction = time(NULL);
 
     return temp;
 }
 
-void printList(struct Node *node, void (*fptr)(void *)) { 
+struct Transaction* create_transaction2(struct Account *sender, struct Account *receiver, 
+                            uint64_t amount) {
+    assert(strlen(sender->account_no) > 0 && strlen(receiver->account_no) > 0 && amount >= 0);
+    struct Transaction *temp = (struct Transaction *) malloc(sizeof(struct Transaction));
+    strcpy(temp->sender, sender->account_no);
+    strcpy(temp->receiver, receiver->account_no);
+    temp->amount = amount;
+    
+    temp->date_of_transaction = time(NULL);
+
+    return temp;                           
+    
+}
+
+void edit_transaction_date(struct Transaction *transaction, time_t new_date) {
+    transaction->date_of_transaction = new_date;
+}
+
+void print_list(struct Node *node, void (*fptr)(void *)) { 
     if (node == NULL)
         printf("The list is empty, nothing to print.\n");
     while (node != NULL) { 
@@ -58,7 +79,7 @@ void printList(struct Node *node, void (*fptr)(void *)) {
     printf("\n");
 }
 
-void printNode(struct Node *node, void (*fptr)(void *)) {
+void print_node(struct Node *node, void (*fptr)(void *)) {
     if (node == NULL)
         printf("The node is empty, nothing to print.\n");
     else
@@ -66,7 +87,7 @@ void printNode(struct Node *node, void (*fptr)(void *)) {
 }
 
 // Function to print a Data struct
-void printClient(void *data) {
+void print_client(void *data) {
     struct Person temp = *(struct Person *)data;
 
     printf("%15s %32s %32s %20ld\n", 
@@ -76,20 +97,20 @@ void printClient(void *data) {
     temp.date_of_birth);
 }
 
-void printAccount(void *data) {
+void print_account(void *data) {
     struct Account temp = *(struct Account *)data;
 
-    printf("%-15s%-32s%-32s%-20ld\n", 
+    printf("%-15s%-32s%-32ju%-20ld\n", 
     temp.account_no,
     temp.owner,
     temp.balance,
     temp.date_of_creation);
 }
 
-void printTransaction(void *data) {
+void print_transaction(void *data) {
     struct Transaction temp = *(struct Transaction *)data;
 
-    printf("%-15s%-32s%-32s%-20ld\n", 
+    printf("%-15s%-32s%-32ju%-20ld\n", 
     temp.sender,
     temp.receiver,
     temp.amount,
@@ -100,6 +121,11 @@ void printTransaction(void *data) {
 // and size of the data type. 
 void insert_head(struct Node** head_ref, struct Node** tail_ref, void *new_data, size_t data_size) 
 { 
+    // previous     current     next
+    // -------      -------     -------
+    // |     | ->   |     | ->  |     |
+    // -------      -------     -------
+
     // Allocate memory for node 
     struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));
     new_node->data  = malloc(data_size);
@@ -108,11 +134,6 @@ void insert_head(struct Node** head_ref, struct Node** tail_ref, void *new_data,
         exit(1);
     }    
      
-    // Copy contents of new_data to newly allocated memory. 
-    // Assumption: char takes 1 byte. 
-    // int i; 
-    // for (i=0; i<data_size; i++) 
-    //     *(char *)(new_node->data + i) = *(char *)(new_data + i); 
     memcpy(new_node->data, new_data, data_size);
     // Alter the pointers accordingly 
     new_node->next = (*head_ref);
@@ -139,10 +160,7 @@ void insert_tail(struct Node** head_ref, struct Node** tail_ref, void *new_data,
     }
 
     // Copy contents of new_data to newly allocated memory. 
-    // Assumption: char takes 1 byte. 
-    int i; 
-    for (i=0; i<data_size; i++) 
-        *(char *)(new_node->data + i) = *(char *)(new_data + i); 
+    memcpy(new_node->data, new_data, data_size);
 
     new_node->next = NULL; 
     new_node->previous = (*tail_ref);
@@ -161,11 +179,8 @@ void insert_middle(struct Node **tail_ref, struct Node *previous_node, void *new
     // Allocate memory for node 
     struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));
     new_node->data  = malloc(data_size);
-    // Copy contents of new_data to newly allocated memory. 
-    // Assumption: char takes 1 byte. 
-    int i; 
-    for (i=0; i<data_size; i++) 
-        *(char *)(new_node->data + i) = *(char *)(new_data + i);
+    // Copy contents of new_data to newly allocated memory.  
+    memcpy(new_node->data, new_data, data_size);
 
     // Make the necessary alteration to the next and previous pointers of the new_node
     if (previous_node->next == NULL) {
@@ -180,6 +195,22 @@ void insert_middle(struct Node **tail_ref, struct Node *previous_node, void *new
         previous_node->next = new_node;
     }
 
+}
+
+int get_list_lenght(struct Node *head_ref) {
+    if (head_ref == NULL) {
+        return 0;
+    }
+
+    struct Node *current = head_ref;
+    int count = 0;
+
+    while(current != NULL) {
+        count++;
+        current = current->next;
+    }
+
+    return count;
 }
 
 void delete_node(struct Node **head_ref, struct Node **tail_ref, struct Node *node_to_delete) {
@@ -201,12 +232,18 @@ void delete_node(struct Node **head_ref, struct Node **tail_ref, struct Node *no
     free(node_to_delete);
 }
 
-int compareNames(const struct Person *a, const struct Person *b) {
-    return strcmp(a->name, b->name);
+int compare_names(const void *a, const void *b) {
+    struct Person *pa = (struct Person *)a;
+    struct Person *pb = (struct Person *)b;
+    
+    return strcmp(pa->name, pb->name);
 }
 
-int compareDate(const struct Transaction *a, const struct Transaction *b) {
-    return a->date_of_transaction - b->date_of_transaction;
+int compare_date(const void *a, const void *b) {
+    struct Transaction *pa = (struct Transaction *)a;
+    struct Transaction *pb = (struct Transaction *)b;
+
+    return pa->date_of_transaction - pb->date_of_transaction;
 }
 
 void middle(struct Node* source, struct Node** frontRef, struct Node** backRef) {
@@ -228,7 +265,7 @@ void middle(struct Node* source, struct Node** frontRef, struct Node** backRef) 
     slow->next = NULL;
 }
 
-struct Node* SortedMerge(struct Node* a, struct Node* b, int (*compar)(const void*, const void*))
+struct Node* sorted_merge(struct Node* a, struct Node* b, int (*compar)(const void*, const void*))
 {
     struct Node* result = NULL;
     /* Base cases */
@@ -238,11 +275,11 @@ struct Node* SortedMerge(struct Node* a, struct Node* b, int (*compar)(const voi
         return (a);
     if (compar(a->data, b->data) <= 0) {
         result = a;
-        result->next = SortedMerge(a->next, b, compar);
+        result->next = sorted_merge(a->next, b, compar);
     }
     else {
         result = b;
-        result->next = SortedMerge(a, b->next, compar);
+        result->next = sorted_merge(a, b->next, compar);
     }
     return (result);
 }
@@ -250,7 +287,7 @@ struct Node* SortedMerge(struct Node* a, struct Node* b, int (*compar)(const voi
 // sorts the linked list by changing links
 // recursive function that splits the list into smaller pieces,
 // compares pairs and sends them to the function to be merged
-void MergeSort(struct Node** headRef, int (*compar)(const void*, const void*)){
+void merge_sort(struct Node** headRef, int (*compar)(const void*, const void*)){
     struct Node* head = *headRef;
     struct Node* a;
     struct Node* b;
@@ -259,9 +296,9 @@ void MergeSort(struct Node** headRef, int (*compar)(const void*, const void*)){
         return;
     }
     middle(head, &a, &b);
-    MergeSort(&a, compar);
-    MergeSort(&b, compar);
-    *headRef = SortedMerge(a, b, compar);
+    merge_sort(&a, compar);
+    merge_sort(&b, compar);
+    *headRef = sorted_merge(a, b, compar);
 }
 
 void clear_list(struct Node **head_ref, struct Node **tail_ref) {
@@ -276,3 +313,17 @@ void clear_list(struct Node **head_ref, struct Node **tail_ref) {
 
     (*tail_ref) = (*head_ref);
 }
+
+// void handle_transaction(struct Transaction *transaction, struct Node *account_head) {
+//     struct Node *current = account_head;
+//     struct Account *current_account;
+
+//     while(current != NULL) {
+//         current_account = current->data;
+//         if (strcmp(current_account->account_no, transaction->receiver) == 0) {
+//             // Credit the current accout
+//         } else if (strcmp(current_account->account_no, transaction->sender) == 0) {
+//             // Debit the current account
+//         }
+//     } 
+// }
